@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Web GUI PDU</title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    </style>
+</head>
+
+<body>
+    <h1>freqeuncy: {{freqeuncy}}Hz</h1>
+    <h1>voltage: {{voltage}}V</h1>
+    <form method="post" id="output_form">
+        {% csrf_token %}
+        <label>output1<input type="checkbox" id="o1_check" name="o1_check" {{o1}} /></label>
+        <label>output2<input type="checkbox" id="o2_check" name="o2_check" {{o2}} /></label>
+        <label>output3<input type="checkbox" id="o3_check" name="o3_check" {{o3}} /></label>
+        <label>output4<input type="checkbox" id="o4_check" name="o4_check" {{o4}} /></label>
+        <label>output5<input type="checkbox" id="o5_check" name="o5_check" {{o5}} /></label>
+        <label>output6<input type="checkbox" id="o6_check" name="o6_check" {{o6}} /></label>
+        <label>output7<input type="checkbox" id="o7_check" name="o7_check" {{o7}} /></label>
+        <label>output8<input type="checkbox" id="o8_check" name="o8_check" {{o8}} /></label>
+        <input type='submit' />
+    </form>
+</body>
+
+</html>
