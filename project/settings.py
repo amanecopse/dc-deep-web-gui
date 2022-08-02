@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     'app',
 ]
 
@@ -107,13 +108,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -172,7 +173,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'encoding': 'utf-8',
-            'filters': ['require_debug_false'],
+            'filters': ['require_debug_true'],
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR / 'logs/mysite.log',
             'maxBytes': 1024*1024*5,  # 5 MB
@@ -194,5 +195,14 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
         },
+        'app.cron': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
     }
 }
+
+# crontab settings
+CRONJOBS = [
+    ('*/1 * * * *', 'app.cron.storePduData'),
+]
