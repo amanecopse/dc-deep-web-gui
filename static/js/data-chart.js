@@ -1,6 +1,6 @@
 // const xVal = JSON.parse('{{xVal|safe}}');
 //         const yVals = JSON.parse('{{yVals|safe}}');
-function renderChart(xVal, yVals, chartId){
+function renderChart(xVal, yVals, maxXValCount, chartId){
     const datasets = [];
     const colorset = [
         'rgba(0, 0, 0, 1)',
@@ -14,8 +14,9 @@ function renderChart(xVal, yVals, chartId){
         'rgba(200, 50, 64, 1)',
     ];
 
+    xVal = xVal.slice(Math.max(xVal.length - maxXValCount, 0))
     for (let i in yVals) {
-        console.log(i);
+        yVals[i] = yVals[i].slice(Math.max(yVals[i].length - maxXValCount, 0))
         let label;
         if (Number(i) === 0)
             label = 'total';
