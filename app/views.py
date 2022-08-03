@@ -2,8 +2,6 @@ from django.shortcuts import render, HttpResponse
 from django.db import models
 from pyModbusTCP.client import ModbusClient
 import logging
-import matplotlib.pyplot as plt
-import mpld3
 
 from app.models import StoredPduData, getDataFromNDaysAgo, MAX_OUTPUT_NUMBER, pduUnits
 
@@ -45,33 +43,29 @@ def index(request):
         else:
             outputs[i] = ""
 
-    querySet = getDataFromNDaysAgo(StoredPduData, 1)
-
+    xVal, yVals = processPlotData('tpf')
     data = {'freqeuncy': round(freq_volt[0]/100),
             'voltage': round(freq_volt[1]/10),
             'o1': outputs[0], 'o2': outputs[1], 'o3': outputs[2], 'o4': outputs[3],
             'o5': outputs[4], 'o6': outputs[5], 'o7': outputs[6], 'o8': outputs[7],
-            'plot': makeHtmlPlot(querySet, 'power')}
+            'xVal': xVal, 'yVals': yVals, }
 
     return render(request, 'app/index.html', data)
 
 
-def makeHtmlPlot(querySet: models.QuerySet, fieldName):
-    fig = plt.figure()
+def processPlotData(fieldName):
+    querySet = getDataFromNDaysAgo(StoredPduData, 10)
+
     xVal = querySet.filter(outputNum=0).values_list('dateTime')
     if xVal != None:
-        xVal = list(map(lambda x: x[0], xVal))
+        xVal = list(map(
+            lambda x: f'{{"year": {x[0].year}, "month": {x[0].month}, "month": {x[0].month}, "day": {x[0].day}, "hour": {x[0].hour}, "minute": {x[0].minute}}}', xVal))
+    xVal = f"[{','.join(xVal)}]"
 
+    yVals = []
     for i in range(MAX_OUTPUT_NUMBER+1):
         yVal = querySet.filter(outputNum=i).values_list(fieldName)
         if yVal != None:
-            yVal = list(map(lambda x: x[0], yVal))
-        if i == 0:
-            plt.plot(xVal, yVal, label=f'total', marker="o")
-        else:
-            plt.plot(xVal, yVal, label=f'output{i}')
-    plt.legend()
-    plt.ylabel(f'{fieldName}({pduUnits[fieldName]})')
-    plt.xlabel('time')
-    htmlPlot = mpld3.fig_to_html(fig)
-    return htmlPlot
+            yVal = list(map(lambda x: float(x[0]), yVal))
+        yVals.append(yVal)
+    return xVal, yVals
