@@ -3,10 +3,12 @@ import logging
 from requests import delete
 from app.models import *
 from pyModbusTCP.client import ModbusClient
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
 
+@transaction.atomic
 def storePduData():
     c = ModbusClient(host="10.0.0.54", port=502, unit_id=1, auto_open=True)
     # 0번 주소는 1~8 output들의 총합. 1~8은 그대로 output에 해당. 총 9개 데이터에서 읽는다.
