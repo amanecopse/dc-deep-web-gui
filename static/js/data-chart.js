@@ -1,6 +1,24 @@
 // const xVal = JSON.parse('{{xVal|safe}}');
 //         const yVals = JSON.parse('{{yVals|safe}}');
+
+let dataChart;
+
+function refreshChart(fieldName, chartId) {
+    $.ajax({
+        type: "GET",
+        url: "/",
+        data: { "type": "chart render", "fieldName": fieldName },
+        success: function (res) {
+            renderChart(res.xVal, res.yVals, 10, chartId);
+            console.log('chart re-render');
+        }
+    });
+}
+
 function renderChart(xVal, yVals, maxXValCount, chartId){
+
+    if(dataChart !== undefined) dataChart.destroy();
+
     const datasets = [];
     const colorset = [
         'rgba(0, 0, 0, 1)',
@@ -42,7 +60,7 @@ function renderChart(xVal, yVals, maxXValCount, chartId){
     var context = document
         .getElementById(chartId)
         .getContext('2d');
-    var myChart = new Chart(context, {
+    dataChart = new Chart(context, {
         type: 'line', // 차트의 형태
         data: { // 차트에 들어갈 데이터
             labels: xVal.map((x) => `${x.hour}시${x.minute}분`),

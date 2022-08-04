@@ -1,11 +1,6 @@
 from datetime import datetime, timedelta
 from django.db import models
 
-MAX_OUTPUT_NUMBER = 8
-
-pduUnits = {'current': 'mA', 'power': 'W',
-            'energyCounter	': 'Wh', 'tpf': '', 'phaseShift': '°', 'reverseEnergyCounter': 'Wh'}
-
 
 def resetModel(model: models.Model):
     model.objects.all().delete()
@@ -14,6 +9,12 @@ def resetModel(model: models.Model):
 def getDataFromNDaysAgo(model: models.Model, nDays) -> models.QuerySet:
     return model.objects.filter(dateTime__gte=datetime.today() -
                                 timedelta(days=nDays))
+
+
+def getLastNData(model: models.Model, n):
+    arr = list(model.objects.order_by('-id')[:n])
+    arr.reverse()
+    return arr
 
 
 class StoredPduData(models.Model):
