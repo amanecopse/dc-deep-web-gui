@@ -1,23 +1,17 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'auth.html' %}
+{% block content_auth %}
 
 {% load static %}
 {% load app_extras %}
 
-{% if user.is_authenticated %}
 <!-- data render js -->
 <script src="{% static 'js/data-chart.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/data-table.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/output-switch-control.js' %}" type="text/javascript"></script>
-{% else %}
-<script>
-    window.location.replace("{% url 'app:login' %}")
-</script>
-{% endif %}
 
 <div class="row card m-1">
     <div class="card-body">
-        <h2>Dashboard</h2>
+        <h2>PDU 관리 대시보드</h2>
     </div>
 </div>
 
