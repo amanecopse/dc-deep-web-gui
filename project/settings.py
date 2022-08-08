@@ -219,7 +219,7 @@ LOGGING = {
 
 # crontab settings
 CRONJOBS = [
-    ('*/1 * * * *', 'project.cron.storePduData'),
+    ('*/10 * * * *', 'project.cron.storePduData'),
 ]
 
 # 로그인 성공후 이동하는 URL

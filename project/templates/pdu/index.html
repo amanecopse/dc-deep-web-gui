@@ -15,62 +15,64 @@
     </div>
 </div>
 
-<div class="row justify-content-around">
-    <div class="col">
-        <div class="card border-light mb-3" style="max-width: 35rem;">
-            <div class="card-header">PDU 상태</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col">
-                        <h5 class="card-title">freqeuncy:</h5>
-                        <p class="card-text">{{freqeuncy}}Hz</p>
+<div class="container">
+    <div class="row justify-content-around">
+        <div class="col">
+            <div class="card border-light mb-3" style="max-width: 35rem;">
+                <div class="card-header">PDU 상태</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="card-title">freqeuncy:</h5>
+                            <p class="card-text">{{freqeuncy}}Hz</p>
+                        </div>
+                        <div class="col">
+                            <h5 class="card-title">voltage:</h5>
+                            <p class="card-text">{{voltage}}V</p>
+                        </div>
                     </div>
-                    <div class="col">
-                        <h5 class="card-title">voltage:</h5>
-                        <p class="card-text">{{voltage}}V</p>
-                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card border-light mb-3" style="max-width: 35rem;">
+                <div class="card-header">On, Off</div>
+                <div class="card-body">
+                    <form method="post" class="row row-cols-auto m-1" id="output-form">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card m-1">
+                <div class="card-header">
+                    전력소비량
+                    <i class="fa-solid fa-arrow-rotate-right" id="energy-chart-refresh"></i>
                 </div>
 
-
+                <div class="card-body">
+                    <!--차트가 그려질 부분-->
+                    <canvas id="energy-data-chart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col">
-        <div class="card border-light mb-3" style="max-width: 35rem;">
-            <div class="card-header">On, Off</div>
-            <div class="card-body">
-                <form method="post" class="row row-cols-auto m-1" id="output-form">
-                </form>
-            </div>
+    <div class="row card m-1 overflow-auto">
+        <div class="card-header" style="min-width: 30rem;">
+            사용현황표
+            <i class="fa-solid fa-arrow-rotate-right" id="table-refresh"></i>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col">
-        <div class="card m-1">
-            <div class="card-header">
-                전력소비량
-                <i class="fa-solid fa-arrow-rotate-right" id="energy-chart-refresh"></i>
-            </div>
 
-            <div class="card-body">
-                <!--차트가 그려질 부분-->
-                <canvas id="energy-data-chart"></canvas>
-            </div>
+        <div class="card-body" style="min-width: 30rem;">
+            <!-- 테이블이 그려질 부분 -->
+            <table class="table" id="data-table"></table>
         </div>
-    </div>
-</div>
-
-<div class="row card m-1 overflow-auto">
-    <div class="card-header" style="min-width: 30rem;">
-        사용현황표
-        <i class="fa-solid fa-arrow-rotate-right" id="table-refresh"></i>
-    </div>
-
-    <div class="card-body" style="min-width: 30rem;">
-        <!-- 테이블이 그려질 부분 -->
-        <table class="table" id="data-table"></table>
     </div>
 </div>
 
