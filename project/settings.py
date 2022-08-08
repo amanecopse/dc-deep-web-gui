@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crontab',
     'project.apps.app',
+    'project.apps.pdu',
 ]
 
 MIDDLEWARE = [
@@ -202,6 +203,10 @@ LOGGING = {
             'propagate': False,
         },
         'project.apps.app.views': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+        'project.apps.pdu.views': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
         },

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% load static %}
+{% load app_extras %}
+
+{% if user.is_authenticated %}
+<!-- data render js -->
+<script src="{% static 'js/data-chart.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/data-table.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/output-switch-control.js' %}" type="text/javascript"></script>
+{% else %}
+<script>
+    window.location.replace("{% url 'app:login' %}")
+</script>
+{% endif %}
+
+<div class="row card m-1">
+    <div class="card-body">
+        <h2>Dashboard</h2>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col">
+        <div class="card border-light mb-3" style="max-width: 35rem;">
+            <div class="card-header">PDU 상태</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title">freqeuncy:</h5>
+                        <p class="card-text">{{freqeuncy}}Hz</p>
+                    </div>
+                    <div class="col">
+                        <h5 class="card-title">voltage:</h5>
+                        <p class="card-text">{{voltage}}V</p>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card border-light mb-3" style="max-width: 35rem;">
+            <div class="card-header">On, Off</div>
+            <div class="card-body">
+                <form method="post" class="row row-cols-auto m-1" id="output-form">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="card m-1">
+            <div class="card-header">
+                전력소비량
+                <i class="fa-solid fa-arrow-rotate-right" id="energy-chart-refresh"></i>
+            </div>
+
+            <div class="card-body">
+                <!--차트가 그려질 부분-->
+                <canvas id="energy-data-chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row card m-1 overflow-auto">
+    <div class="card-header" style="min-width: 30rem;">
+        사용현황표
+        <i class="fa-solid fa-arrow-rotate-right" id="table-refresh"></i>
+    </div>
+
+    <div class="card-body" style="min-width: 30rem;">
+        <!-- 테이블이 그려질 부분 -->
+        <table class="table" id="data-table"></table>
+    </div>
+</div>
+
+<!-- chart rendering -->
+{{xVal|json_script:"x-value-data"}}
+{{yVals|json_script:"y-values-data"}}
+{{tableData|json_script:"table-data"}}
+<script type="text/javascript">
+    const xVal = JSON.parse($("#x-value-data").text());
+    const yVals = JSON.parse($("#y-values-data").text());
+    const tableData = JSON.parse($("#table-data").text());
+
+    renderChart(xVal, yVals, 10, 'energy-data-chart');
+
+    const rowLabel = ['Total', 'output1', 'output2', 'output3', 'output4', 'output5', 'output6', 'output7', 'output8']
+    const colLabel = ['output', '전력(W)', '전력소비량(Wh)', '전류(mA)']
+
+    renderTable(tableData, rowLabel, colLabel, 'data-table')
+
+    renderSwitch('{% url "pdu:index"%}', JSON.parse('{{ outputCheck|safe}}'), 'output-form')
+
+    $(document).ready(
+        function () {// 페이지 로드 이후 처리될 동작들
+            $('#energy-chart-refresh').on('click', () => {
+                refreshChart('{% url "pdu:index"%}', 'energyCounter', 'energy-data-chart');
+            })
+
+            $('#table-refresh').on('click', () => {
+                refreshTable('{% url "pdu:index"%}', rowLabel, colLabel, 'data-table');
+            })
+        }
+    )
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
-function refreshTable(rowLabel, colLabel, tableId) {
+function refreshTable(url, rowLabel, colLabel, tableId) {
     $.ajax({
         type: "GET",
-        url: "/",
+        url: url,
         data: { "type": "table render"},
         success: function (tableData) {
             renderTable(tableData, rowLabel, colLabel, tableId);

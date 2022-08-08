@@ -1,4 +1,4 @@
-function setSwitch(switchIndex, switchId, containerId) {
+function setSwitch(url, switchIndex, switchId, containerId) {
     
     let switchState;
 
@@ -7,16 +7,16 @@ function setSwitch(switchIndex, switchId, containerId) {
 
     $.ajax({
         type: "POST",
-        url: "/",
+        url: url,
         data: { "type": "switch setting", "switchIndex":switchIndex,"switchState":switchState},
         success: function (checks) {
-            renderSwitch(checks, containerId);
+            renderSwitch(url, checks, containerId);
             console.log('switch re-render');
         }
     });
 }
 
-function renderSwitch(checks, containerId){
+function renderSwitch(url, checks, containerId){
     let content = '';
 
     for (let i = 0; i < checks.length; i++) {
@@ -30,7 +30,7 @@ function renderSwitch(checks, containerId){
             <div class="col form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch"
                     id="o${i+1}-check" name="o${i+1}-check"
-                    ${checked} onclick="setSwitch(${i}, 'o${i+1}-check', 'output-form')">
+                    ${checked} onclick="setSwitch('${url}', ${i}, 'o${i+1}-check', 'output-form');">
                 <label class="form-check-label"
                     for="o${i+1}-check">output${i+1}</label>
             </div>

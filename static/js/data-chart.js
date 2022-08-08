@@ -3,10 +3,10 @@
 
 let dataChart;
 
-function refreshChart(fieldName, chartId) {
+function refreshChart(url, fieldName, chartId) {
     $.ajax({
         type: "GET",
-        url: "/",
+        url: url,
         data: { "type": "chart render", "fieldName": fieldName },
         success: function (res) {
             renderChart(res.xVal, res.yVals, 10, chartId);
