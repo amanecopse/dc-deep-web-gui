@@ -1,7 +1,7 @@
 import logging
 
 from requests import delete
-from app.models import *
+from .apps.app.models import *
 from pyModbusTCP.client import ModbusClient
 from django.db import transaction
 

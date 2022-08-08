@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crontab',
-    'app',
+    'project.apps.app',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["app/templates"],
+        'DIRS': ["project/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -180,6 +180,16 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'standard',
         },
+        'cron_file': {
+            'level': 'DEBUG',
+            'encoding': 'utf-8',
+            'filters': ['require_debug_true'],
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs/crontab.log',
+            'maxBytes': 1024*1024*5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
     },
     'loggers': {
         'django': {
@@ -191,12 +201,12 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-        'app.views': {
+        'project.apps.app.views': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
         },
-        'app.cron': {
-            'handlers': ['console', 'file'],
+        'project.cron': {
+            'handlers': ['console', 'cron_file'],
             'level': 'DEBUG',
         },
     }
@@ -204,7 +214,7 @@ LOGGING = {
 
 # crontab settings
 CRONJOBS = [
-    ('*/1 * * * *', 'app.cron.storePduData'),
+    ('*/1 * * * *', 'project.cron.storePduData'),
 ]
 
 # 로그인 성공후 이동하는 URL
