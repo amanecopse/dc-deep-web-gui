@@ -1,9 +1,10 @@
 import logging
 
-from requests import delete
 from .apps.pdu.models import *
+from .apps.env.models import *
 from pyModbusTCP.client import ModbusClient
 from django.db import transaction
+from .apps.app import dbUtil
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,24 @@ def storePduData():
 
             spd.save()
     logger.info('storePduData')
+
+
+def deleteOldRecord():
+    dbUtil.deleteRecordWithDateRange(
+        StoredPduData, None, datetime.today()-timedelta(days=30))
+    dbUtil.deleteRecordWithDateRange(
+        Temperature, None, datetime.today()-timedelta(days=30))
+    dbUtil.deleteRecordWithDateRange(
+        Humidity, None, datetime.today()-timedelta(days=30))
+    dbUtil.deleteRecordWithDateRange(
+        Co2, None, datetime.today()-timedelta(days=30))
+    dbUtil.deleteRecordWithDateRange(
+        Light, None, datetime.today()-timedelta(days=30))
+    dbUtil.deleteRecordWithDateRange(
+        Camera, None, datetime.today()-timedelta(days=30))
+    dbUtil.deleteRecordWithDateRange(
+        Motor, None, datetime.today()-timedelta(days=30))
+    logger.info('deleteOldRecord')
 
 
 def test():
