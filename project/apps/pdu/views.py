@@ -6,8 +6,9 @@ from pyModbusTCP.client import ModbusClient
 import logging
 import json
 
-from .models import StoredPduData, getDataFromNDaysAgo, getLastNData
+from .models import StoredPduData
 from .pduUtil import pduUtil
+from project.apps.app.dbUtil import getDataFromNDaysAgo, getLastNData
 
 logger = logging.getLogger(__name__)
 
