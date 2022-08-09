@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'project.apps.app',
     'project.apps.pdu',
+    'project.apps.env',
 ]
 
 MIDDLEWARE = [
@@ -220,6 +221,7 @@ LOGGING = {
 # crontab settings
 CRONJOBS = [
     ('*/10 * * * *', 'project.cron.storePduData'),
+    ('* * * */1 *', 'project.cron.deleteOldRecord'),
 ]
 
 # 로그인 성공후 이동하는 URL
