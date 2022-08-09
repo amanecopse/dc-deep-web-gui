@@ -40,8 +40,8 @@
 
     <nav class="navbar navbar-dark navbar-expand-lg bg-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'app:index' %}"><i class="fa-solid fa-power-off me-2"></i>서버 환경 관리
-                페이지</a>
+            <a class="navbar-brand" href="{% url 'app:index' %}"><i class="fa-solid fa-power-off me-2"></i>데이터센터 에너지효율
+                최적관리 운영 플랫폼</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -53,6 +53,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'pdu:index' %}">PDU</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'env:index' %}">컨테인먼트 관리</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/admin">관리자 페이지</a>
