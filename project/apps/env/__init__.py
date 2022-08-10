@@ -1,3 +1,3 @@
-from . import mqtt
+from .mqtt import MqttClient
 
-mqtt.client.loop_start()
+MqttClient.getClient().loop_start()

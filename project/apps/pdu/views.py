@@ -5,8 +5,7 @@ from django.views import View
 from pyModbusTCP.client import ModbusClient
 import logging
 import json
-
-from .models import StoredPduData
+from project.apps.env.models.power import PduData
 from .pduUtil import pduUtil
 from project.apps.app.dbUtil import getDataFromNDaysAgo, getLastNData
 
@@ -30,7 +29,7 @@ class PduView(View):
                 return JsonResponse(chartData, safe=False)
             elif requestType == PduView.REQUEST_TYPE_TABLE_RENDER:
                 tableData = list(map(
-                    lambda x: [x.power, x.energyCounter, x.current], getLastNData(StoredPduData, 9)))
+                    lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, 9)))
                 return JsonResponse(tableData, safe=False)
 
         modbusClient = ModbusClient(
@@ -72,7 +71,7 @@ class PduView(View):
 
         xVal, yVals = processPlotData(pduUtil.PDU_VARIABLE_ENERGY_COUNTER)
         tableData = list(map(
-            lambda x: [x.power, x.energyCounter, x.current], getLastNData(StoredPduData, pduUtil.MAX_OUTPUT_NUMBER+1)))
+            lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, pduUtil.MAX_OUTPUT_NUMBER+1)))
 
         data = {'freqeuncy': round(freq_volt[0]/100),
                 'voltage': round(freq_volt[1]/10),
@@ -83,7 +82,7 @@ class PduView(View):
 
 
 def processPlotData(fieldName):
-    querySet = getDataFromNDaysAgo(StoredPduData, 10)
+    querySet = getDataFromNDaysAgo(PduData, 10)
 
     xVal = querySet.filter(outputNum=0).values_list('dateTime')
     if xVal != None:
