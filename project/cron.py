@@ -30,12 +30,11 @@ def storePduData():
         reverseEnergyCounters = modbusClient.read_input_registers(600, 18)
 
         with transaction.atomic():
-            for i in range(9):
+            for i in range(pdu.outputCount + 1):
                 pd = PduData(
-                    rackNum=pdu.rackNum,
-                    pduNum=pdu.pduNum,
+                    rack=pdu.rack,
+                    pdu=pdu,
                     outputNum=i,
-                    ip=1,
                     current=currents[i],
                     power=powers[i],
                     energyCounter=(
@@ -53,9 +52,7 @@ def deleteOldRecord():
     dbUtil.deleteRecordWithDateRange(
         PduData, None, datetime.today()-timedelta(days=30))
     dbUtil.deleteRecordWithDateRange(
-        TemperatureData, None, datetime.today()-timedelta(days=30))
-    dbUtil.deleteRecordWithDateRange(
-        HumidityData, None, datetime.today()-timedelta(days=30))
+        SensorData, None, datetime.today()-timedelta(days=30))
     logger.info('deleteOldRecord')
 
 

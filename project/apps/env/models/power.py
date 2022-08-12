@@ -2,21 +2,23 @@ from django.db import models
 
 
 class Pdu(models.Model):
-    rackNum = models.IntegerField()
+    from project.apps.env.models.dataCenter import Rack
+    rack = models.ForeignKey(Rack, on_delete=models.CASCADE)
     pduNum = models.IntegerField()
     outputCount = models.IntegerField()
     ip = models.CharField(max_length=20)
+    info = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'rackNum: {self.rackNum}, pduNum: {self.pduNum}, outputCount: {self.outputCount}, ip: {self.ip}'
+        return f'rackNum: {self.rack.rackNum}, pduNum: {self.pduNum}, info: {self.info}'
 
 
 class PduData(models.Model):
+    from project.apps.env.models.dataCenter import Rack
     dateTime = models.DateTimeField(auto_now_add=True)
-    rackNum = models.IntegerField()
-    pduNum = models.IntegerField()
+    rack = models.ForeignKey(Rack, on_delete=models.CASCADE)
+    pdu = models.ForeignKey(Pdu, on_delete=models.CASCADE)
     outputNum = models.IntegerField()
-    ip = models.CharField(max_length=20)
     current = models.DecimalField(max_digits=20, decimal_places=2)
     power = models.DecimalField(max_digits=20, decimal_places=2)
     energyCounter = models.DecimalField(max_digits=20, decimal_places=2)
@@ -25,4 +27,4 @@ class PduData(models.Model):
     reverseEnergyCounter = models.DecimalField(max_digits=20, decimal_places=2)
 
     def __str__(self):
-        return f'rackNum: {self.rackNum}, pduNum: {self.pduNum}, output: {self.outputNum}, date: {self.dateTime}'
+        return f'rackNum: {self.rack.rackNum}, pduNum: {self.pdu.pduNum}, output: {self.outputNum}, date: {self.dateTime}'

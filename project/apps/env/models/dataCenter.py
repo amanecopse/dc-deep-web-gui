@@ -1,28 +1,25 @@
 from django.db import models
 
 
-class DataCenter(models.Model):
-    racks = models.CharField(max_length=200)
-
-    def __str__(self):
-        return f'racks: {self.racks}'
-
-
 class Rack(models.Model):
     rackNum = models.IntegerField(primary_key=True)
-    deviceCount = models.IntegerField()
-    sensorCount = models.IntegerField()
-    pduCount = models.IntegerField()
+    info = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'rackNum: {self.rackNum}, deviceCount: {self.deviceCount}, sensorCount: {self.sensorCount}, pduCount: {self.pduCount}'
+        return f'rackNum: {self.rackNum}, info: {self.info}'
 
 
-class Device(models.Model):
-    rackNum = models.IntegerField()
-    pduNum = models.IntegerField()
-    outputNum = models.IntegerField()
-    name = models.CharField(max_length=20)
+class Server(models.Model):
+    from project.apps.env.models.power import Pdu
+    rack = models.ForeignKey(Rack, on_delete=models.CASCADE)
+    pdu1 = models.ForeignKey(
+        Pdu, on_delete=models.CASCADE, related_name='pdu1')
+    pdu2 = models.ForeignKey(
+        Pdu, on_delete=models.CASCADE, related_name='pdu2')
+    pdu1Output = models.IntegerField()
+    pdu2Output = models.IntegerField()
+    serverNum = models.IntegerField()
+    info = models.CharField(max_length=200)
 
     def __str__(self):
-        return f'rackNum: {self.rackNum}, pduNum: {self.pduNum}, output: {self.outputNum}, name: {self.name}'
+        return f'rackNum: {self.rack.rackNum}, serverNum: {self.serverNum}, info: {self.info}'

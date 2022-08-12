@@ -9,8 +9,12 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     from .models.sensor import insertRecordWithJsonDict
-    print(msg.topic+" "+str(msg.payload), client)
-    # insertRecordWithJsonDict(json.loads(msg.payload))
+
+    try:
+        print(msg.topic+" "+str(msg.payload), client)
+        insertRecordWithJsonDict(json.loads(msg.payload))
+    except:
+        print(__name__+': decoding error')
 
 
 class MqttClient():
