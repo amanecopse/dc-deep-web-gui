@@ -38,10 +38,10 @@ def storePduData():
                     current=currents[i],
                     power=powers[i],
                     energyCounter=(
-                        energyCounters[2*i] << 16) & energyCounters[2*i+1],
+                        energyCounters[2*i] << 16) | energyCounters[2*i+1],
                     tpf=tpfs[i],
                     phaseShift=phaseShifts[i],
-                    reverseEnergyCounter=(reverseEnergyCounters[2*i] << 16) & reverseEnergyCounters[2*i+1])
+                    reverseEnergyCounter=(reverseEnergyCounters[2*i] << 16) | reverseEnergyCounters[2*i+1])
 
                 pd.save()
         modbusClient.close()
