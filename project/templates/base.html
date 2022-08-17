@@ -7,7 +7,7 @@
     <!-- 모바일에서 반응형 구현 위해 필요한 메타데이터 -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel=icon href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15/svgs/solid/power-off.svg>
-    <title>Web GUI PDU</title>
+    <title>DC Deep</title>
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
 
     <!-- bootstrap -->
@@ -36,12 +36,15 @@
     </script>
 </head>
 
-<body class="pt-5">
+<body>
 
-    <nav class="navbar navbar-dark navbar-expand-lg bg-dark fixed-top">
+    <nav class="navbar navbar-dark navbar-expand-lg bg-dark sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'app:index' %}"><i class="fa-solid fa-power-off me-2"></i>데이터센터 에너지효율
+            <a class="navbar-brand d-none d-sm-block" href="{% url 'app:index' %}"><i
+                    class="fa-solid fa-power-off me-2"></i>데이터센터 에너지효율
                 최적관리 운영 플랫폼</a>
+            <a class="navbar-brand d-sm-none d-block" href="{% url 'app:index' %}"><i
+                    class="fa-solid fa-power-off me-2"></i>DC Deep</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -69,7 +72,7 @@
             </div>
         </div>
     </nav>
-    <main class="container-fluid mt-3">
+    <main class="container-fluid mt-3" style="max-width: 1200px;">
         {% block content %}
         {% endblock %}
     </main>
