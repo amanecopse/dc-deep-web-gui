@@ -23,3 +23,9 @@ class Server(models.Model):
 
     def __str__(self):
         return f'rackNum: {self.rack.rackNum}, serverNum: {self.serverNum}, info: {self.info}'
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['rack', 'serverNum'], name='rack_server'),
+        ]

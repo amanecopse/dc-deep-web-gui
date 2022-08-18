@@ -12,6 +12,12 @@ class Pdu(models.Model):
     def __str__(self):
         return f'rackNum: {self.rack.rackNum}, pduNum: {self.pduNum}, info: {self.info}'
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['rack', 'pduNum'], name='rack_pdu'),
+        ]
+
 
 class PduData(models.Model):
     from project.apps.env.models.dataCenter import Rack

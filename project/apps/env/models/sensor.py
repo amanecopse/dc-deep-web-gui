@@ -62,6 +62,12 @@ class Sensor(models.Model):
     def __str__(self):
         return f'rackNum: {self.rack.rackNum}, sensorNum: {self.sensorNum}, mac: {self.mac}'
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['rack', 'sensorNum'], name='rack_sensor'),
+        ]
+
 
 class SensorData(models.Model):
     from project.apps.env.models.dataCenter import Rack
