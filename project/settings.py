@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crontab',
+    'rest_framework',
     'project.apps.app',
     'project.apps.pdu',
     'project.apps.env',
