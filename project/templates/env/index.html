@@ -1,4 +1,149 @@
 {% extends 'auth.html' %}
 {% block content_auth %}
-env
+
+{% load static %}
+
+<!-- List render -->
+<script src="{% static 'js/item-list.js' %}"></script>
+
+<!-- Modal Form Submit -->
+<script>
+    const REQUEST_DATA_KEY_FORM_NAME = "formName";
+    const REQUEST_DATA_KEY_MODE = "mode";
+    const REQUEST_DATA_KEY_SERIALIZED_FORM = "serializedForm";
+    const REQUEST_DATA_VALUE_RACK_FORM = "RackForm";
+    const REQUEST_DATA_VALUE_MODE_SUBMIT_ADD = "formSubmitAdd";
+    const REQUEST_DATA_VALUE_MODE_SUBMIT_EDIT = "formSubmitEdit";
+    const REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE = "formSubmitDelete";
+
+    function onSubmitForm(e, modalId) {
+        e.preventDefault();
+        let data;
+        const submitMode = e.target.dataset.submitMode;
+        const formName = e.target.dataset.formName;
+
+        if (submitMode === REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE) {
+            data = e.target.dataset;
+        }
+        else {
+            data = $(e.target).serialize();
+        }
+
+        refreshList(
+            'containment-info',
+            "{% url 'env:index' %}" + `?mode=${submitMode}&formName=${formName}`,
+            data,
+            createRackItem,
+            () => {
+                $('#' + modalId).modal('hide');
+                console.log('form submit success');
+            }
+        );
+        // $.ajax({
+        //     type: "POST",
+        //     url: "{% url 'env:index' %}" + `?type=${submitType}&formName=${formName}`,
+        //     data: serializedForm,
+        //     success: function (res) {
+        //         $('#' + modalId).modal('hide')
+        //         renderItemList('containment-info', res.listData, createRackItem);
+        //         console.log('form submit success');
+        //     }
+        // })
+    }
+</script>
+
+<!-- Rack modal trigger -->
+<button type="button" class="btn btn-primary" onclick="showModal(MODAL_TYPE_RACK, MODAL_MODE_ADD)">
+    새로운 랙 추가
+</button>
+
+<!-- Rack form modal -->
+<div class="modal fade" id="rackFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="onSubmitForm(event, 'rackFormModal');">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="fieldWrapper mb-3">
+                    {{ form.rackNum.errors }}
+                    <label class="col-5 text-nowrap" for="{{ form.rackNum.id_for_label }}">Rack Number: </label>
+                    {{ form.rackNum }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.info.errors }}
+                    <label class="col-5 text-nowrap" for="{{ form.info.id_for_label }}">Infomation: </label>
+                    {{ form.info }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-primary" name="confirm" value="Confirm">
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- PDU form modal -->
+<div class="modal fade" id="pduFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="onSubmitForm(event, 'pduFormModal');">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="fieldWrapper mb-3">
+                    {{ form.rackNum.errors }}
+                    <label class="col-5 text-nowrap" for="{{ form.rackNum.id_for_label }}">Rack Number: </label>
+                    {{ form.rackNum }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.info.errors }}
+                    <label class="col-5 text-nowrap" for="{{ form.info.id_for_label }}">Infomation: </label>
+                    {{ form.info }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-primary" name="confirm" value="Confirm">
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete form modal -->
+<div class="modal fade" id="deleteFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="onSubmitForm(event, 'deleteFormModal');">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                정말로 삭제하시겠습니까?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-primary" name="confirm" value="Confirm">
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="containment-info">
+
+</div>
+
+<script>
+    const listData = JSON.parse('{{listData|safe}}');
+    renderItemList('containment-info', listData, createRackItem);
+    console.log(listData)
+</script>
+
 {% endblock %}
