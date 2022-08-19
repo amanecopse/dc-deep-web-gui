@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views import View
 import json
@@ -7,19 +7,30 @@ from project.apps.env.models.power import Pdu
 from project.apps.env.models.sensor import Sensor
 from project.apps.env.serializers import *
 from .models.dataCenter import Rack, Server
-from project.apps.env.forms import RackForm
+from project.apps.env.forms import *
 
 REQUEST_DATA_KEY_FORM_NAME = "formName"
 REQUEST_DATA_KEY_MODE = "mode"
+
 REQUEST_DATA_VALUE_RACK_FORM = "RackForm"
+REQUEST_DATA_VALUE_PDU_FORM = "PduForm"
+REQUEST_DATA_VALUE_SENSOR_FORM = "SensorForm"
+REQUEST_DATA_VALUE_SERVER_FORM = "ServerForm"
+
 REQUEST_DATA_VALUE_MODE_SUBMIT_ADD = "formSubmitAdd"
 REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE = "formSubmitDelete"
 REQUEST_DATA_VALUE_MODE_SUBMIT_EDIT = "formSubmitEdit"
 
-RACK_FIELD_RACK_NUM = "rackNum"
-PDU_FIELD_PDU_NUM = "pduNum"
-SENSOR_FIELD_SENSOR_NUM = "sensorNum"
-SERVER_FIELD_SERVER_NUM = "serverNum"
+REQUEST_DATA_VALUE_MODE_SHOW_ADD = "showModal"
+
+MODEL_FIELD_RACK = "rack"
+MODEL_FIELD_PDU = "pdu"
+MODEL_FIELD_SENSOR = "sensor"
+MODEL_FIELD_SERVER = "server"
+MODEL_FIELD_RACK_NUM = "rackNum"
+MODEL_FIELD_PDU_NUM = "pduNum"
+MODEL_FIELD_SENSOR_NUM = "sensorNum"
+MODEL_FIELD_SERVER_NUM = "serverNum"
 
 logger = logging.getLogger(__name__)
 
@@ -27,55 +38,122 @@ logger = logging.getLogger(__name__)
 class EnvView(View):
 
     def get(self, request):
-        data = {'form': RackForm(), 'listData': getRackListData()}
+        data = {'rackForm': RackForm(), 'pduForm': PduForm(), 'serverForm': ServerForm(), 'sensorForm': SensorForm(),
+                'listData': getRackListData()}
+        if request.is_ajax():  # Modal에서 보일 폼 구성을 반환한다
+
+            requestMode = request.GET.get(REQUEST_DATA_KEY_MODE)
+            form = None
+            # Add 요청인 경우
+            if requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_ADD:
+                formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
+
+                if formName == REQUEST_DATA_VALUE_RACK_FORM:
+                    form = RackForm()
+                elif formName == REQUEST_DATA_VALUE_PDU_FORM:
+                    form = PduForm()
+                elif formName == REQUEST_DATA_VALUE_SENSOR_FORM:
+                    form = SensorForm()
+                elif formName == REQUEST_DATA_VALUE_SERVER_FORM:
+                    form = ServerForm()
+                else:  # 알 수 없는 폼
+                    return
+            # Edit 요청인 경우
+            elif requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_EDIT:
+                formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
+
+                if formName == REQUEST_DATA_VALUE_RACK_FORM:
+                    rackNum = request.GET.get(MODEL_FIELD_RACK_NUM)
+                    form = RackForm(instance=Rack.objects.get(rackNum=rackNum))
+                elif formName == REQUEST_DATA_VALUE_PDU_FORM:
+                    rackNum = request.GET.get(
+                        MODEL_FIELD_RACK).get(MODEL_FIELD_RACK_NUM)
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    pduNum = request.GET.get(MODEL_FIELD_PDU_NUM)
+                    form = PduForm(instance=Pdu.objects.get(
+                        rack=rack, pduNum=pduNum))
+                elif formName == REQUEST_DATA_VALUE_SENSOR_FORM:
+                    rackNum = request.GET.get(
+                        MODEL_FIELD_RACK).get(MODEL_FIELD_RACK_NUM)
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    sensorNum = request.GET.get(MODEL_FIELD_SENSOR_NUM)
+                    form = SensorForm(
+                        instance=Sensor.objects.get(rack=rack, sensorNum=sensorNum))
+                elif formName == REQUEST_DATA_VALUE_SERVER_FORM:
+                    rackNum = request.GET.get(
+                        MODEL_FIELD_RACK).get(MODEL_FIELD_RACK_NUM)
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    serverNum = request.GET.get(MODEL_FIELD_SERVER_NUM)
+                    form = ServerForm(
+                        instance=Server.objects.get(rack=rack, serverNum=serverNum))
+
+                else:  # 알 수 없는 폼
+                    return
+            else:  # 알 수 없는 ajax 요청
+                return
+
+            return JsonResponse({'form': str(form)}, safe=False)
         return render(request, 'env/index.html', data)
 
     def post(self, request):
         data = {}
         if request.is_ajax():
             requestMode = request.GET.get(REQUEST_DATA_KEY_MODE)
-            if requestMode == None:
-                return
-            # Add 요청 폼인 경우
+
+            # Add 요청인 경우
             if requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_ADD:
                 formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
-                if formName == None:
-                    return
-                # Rack form
+                form = None
+
                 if formName == REQUEST_DATA_VALUE_RACK_FORM:
                     form = RackForm(request.POST)
-                    if form.is_valid:
-                        form.save()
-                        data = json.loads(getRackListData())
-                        return JsonResponse({'listData': data}, safe=False)
-            # Edit 요청 폼인 경우
-            if requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_EDIT:
-                formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
-                if formName == None:
+                elif formName == REQUEST_DATA_VALUE_PDU_FORM:
+                    form = PduForm(request.POST)
+                elif formName == REQUEST_DATA_VALUE_SENSOR_FORM:
+                    form = SensorForm(request.POST)
+                elif formName == REQUEST_DATA_VALUE_SERVER_FORM:
+                    form = ServerForm(request.POST)
+                else:  # 알 수 없는 폼
                     return
+
+                if (form == None) or not form.is_valid:
+                    return
+                form.save()
+            # Edit 요청인 경우
+            elif requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_EDIT:
+                formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
+
                 # Rack form
                 if formName == REQUEST_DATA_VALUE_RACK_FORM:
-                    rackNum = request.POST.get(RACK_FIELD_RACK_NUM)
+                    rackNum = request.POST.get(MODEL_FIELD_RACK_NUM)
                     form = RackForm(
                         request.POST, instance=Rack.objects.get(rackNum=rackNum))
-                    if form.is_valid:
-                        form.save()
-                        data = json.loads(getRackListData())
-                        return JsonResponse({'listData': data}, safe=False)
+                    if not form.is_valid:
+                        return
+                    form.save()
 
-            # Delete 요청 폼인 경우
-            if requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE:
-                formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
-                if formName == None:
+                else:  # 알 수 없는 폼
                     return
+
+            # Delete 요청인 경우
+            elif requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE:
+                formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
+
                 # Rack form
                 if formName == REQUEST_DATA_VALUE_RACK_FORM:
-                    rackNum = request.POST.get(RACK_FIELD_RACK_NUM)
+                    rackNum = request.POST.get(MODEL_FIELD_RACK_NUM)
                     rack = Rack.objects.get(rackNum=rackNum)
                     rack.delete()
-                    data = json.loads(getRackListData())
-                    return JsonResponse({'listData': data}, safe=False)
-            return
+                else:  # 알 수 없는 폼
+                    return
+            else:  # 알 수 없는 ajax 요청
+                return
+
+            # ajax 응답 데이터
+            data = json.loads(getRackListData())
+            return JsonResponse({'rackForm': str(RackForm()), 'pduForm': str(PduForm()),
+                                 'serverForm': str(ServerForm()), 'sensorForm': str(SensorForm()),
+                                 'listData': data}, safe=False)
         return render(request, 'env/index.html', data)
 
 
@@ -115,7 +193,7 @@ def getRackListData():
                 ~~~
             ],
             "servers": [
-                {"id": 1, "rack": {~}, "pdu": {~}, "pdu2_id": 1, "pdu1Output": 3, "pdu2Output": 4, "serverNum": 1, "info": "test server1"},
+                {"id": 1, "rack": {~}, "pdu1": {~}, "pdu2": {~}, "pdu1Output": 3, "pdu2Output": 4, "serverNum": 1, "info": "test server1"},
                 ~~~,
                 ~~~
             ],

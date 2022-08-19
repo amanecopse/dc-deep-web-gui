@@ -5,7 +5,7 @@ function refreshList(containerId, url, data, createItemFunction, callback){
         data: data,
         success: function (res) {
             renderItemList(containerId, res.listData, createItemFunction);
-            callback();
+            callback(res);
         }
     })
 }
@@ -52,41 +52,20 @@ function createRackItem(itemId, content) {
                         <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#${itemId}-collapse">
                         Rack number: ${content.rack.rackNum}
                         </button>
-                        <input class="btn btn-warning" type="submit" name="edit" value="Edit"</input>
-                        <input class="btn btn-danger" type="submit"  name="delete" value="Delete"></input>
+                        <button class="btn btn-warning" id="${itemId}-rack-edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn btn-danger"  id="${itemId}-rack-delete"><i class="fa-solid fa-trash-can"></i></button>
                     </form>
                     <div id="${itemId}-collapse" class="collapse">
                         <h6 class="card-subtitle mb-2 mt-2 text-muted">- ${content.rack.info}</h6>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item" id="${itemId + '-pdu'}">
-                                <h5>PDUs
-                                    <button
-                                        id="${itemId}-add-pdu"
-                                        class="btn btn-primary ms-1" type="button"
-                                    >
-                                        Add
-                                    </button>
-                                </h5>
+                                <h5>PDUs</h5>
                             </li>
                             <li class="list-group-item" id="${itemId + '-sensor'}">
-                                <h5>Sensors
-                                    <button
-                                        id="${itemId}-add-sensor"
-                                        class="btn btn-primary ms-1" type="button"
-                                    >
-                                        Add
-                                    </button>
-                                </h5>
+                                <h5>Sensors</h5>
                             </li>
                             <li class="list-group-item" id="${itemId + '-server'}">
-                                <h5>Servers
-                                    <button
-                                        id="${itemId}-add-server"
-                                        class="btn btn-primary ms-1" type="button"
-                                    >
-                                        Add
-                                    </button>
-                                </h5>
+                                <h5>Servers</h5>
                             </li>
                         </ul>
                     </div>
@@ -95,22 +74,19 @@ function createRackItem(itemId, content) {
         `
     );
 
-    const rackFormObj = rackContentObj.find(`#${itemId}-form`);
-    const rackAddPdu = rackContentObj.find(`#${itemId}-add-pdu`);
-    const rackAddSensor = rackContentObj.find(`#${itemId}-add-sensor`);
-    const rackAddServer = rackContentObj.find(`#${itemId}-add-server`);
+    const rackEditObj = rackContentObj.find(`#${itemId}-rack-edit`);
+    const rackDeleteObj = rackContentObj.find(`#${itemId}-rack-delete`);
 
-    rackFormObj.children('input[name = "edit"]').on('click', (e)=>{
+    // 리스트 구성 버튼들에 이벤트 할당
+    rackEditObj.on('click', (e)=>{
         e.preventDefault();
-        console.log("edit rack:", e.target.form.dataset.rackNum, e.target.form.dataset.info);
-        showModal(MODAL_FORM_NAME_RACK, MODAL_MODE_EDIT, e.target.form.dataset);
-    })
+        showModal(MODAL_FORM_NAME_RACK, MODAL_MODE_EDIT, content.rack);
+    });
 
-    rackFormObj.children('input[name = "delete"]').on('click', (e)=>{
+    rackDeleteObj.on('click', (e)=>{
         e.preventDefault();
-        console.log("delete rack:");
-        showModal(MODAL_FORM_NAME_RACK, MODAL_MODE_DELETE, e.target.form.dataset);
-    })
+        showModal(MODAL_FORM_NAME_RACK, MODAL_MODE_DELETE, content.rack);
+    });
 
     rackContentObj.find(`#${itemId}-pdu`).append(createItemList(itemId + '-pdu', content.pdus, createPduItem));
     rackContentObj.find(`#${itemId}-sensor`).append(createItemList(itemId + '-sensor', content.sensors, createSensorItem));
@@ -120,21 +96,34 @@ function createRackItem(itemId, content) {
 
 function createPduItem(itemId, content) {
     let pduContentObj = $(`
-            <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#${itemId}-collapse">
-                PDU number: ${content.pduNum}
-            </button>
-            <button class="btn btn-warning" type="button">
-                Edit
-            </button>
-            <button class="btn btn-danger" type="button">
-                Delete
-            </button>
-            <div id="${itemId}-collapse" class="collapse">
-                <hr>
-                <h6 class="mb-2">PDU outputs: ${content.outputCount}</h6>
-                <h6 class="mb-2 text-muted">- ${content.info}</h6>
-            </div>
-        `);
+
+        <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#${itemId}-collapse">
+            PDU number: ${content.pduNum}
+        </button>
+        <button class="btn btn-warning" id="${itemId}-pdu-edit"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button class="btn btn-danger"  id="${itemId}-pdu-delete"><i class="fa-solid fa-trash-can"></i></button>
+        <div id="${itemId}-collapse" class="collapse">
+            <hr>
+            <h6 class="mb-2">PDU outputs: ${content.outputCount}</h6>
+            <h6 class="mb-2 text-muted">- ${content.info}</h6>
+        </div>
+    `);
+
+    const pduEditObj = pduContentObj.find(`#${itemId}-pdu-edit`);
+    const pduDeleteObj = pduContentObj.find(`#${itemId}-pdu-delete`);
+
+    debugger;
+    // 편집, 삭제 버튼에 이벤트 할당
+    pduEditObj.on('click', (e)=>{
+        e.preventDefault();
+        showModal(MODAL_FORM_NAME_PDU, MODAL_MODE_EDIT, content);
+    });
+
+    pduDeleteObj.on('click', (e)=>{
+        e.preventDefault();
+        showModal(MODAL_FORM_NAME_PDU, MODAL_MODE_DELETE, content);
+    });
+
     return createListGroupItem(itemId, pduContentObj);
 }
 
@@ -143,12 +132,8 @@ function createSensorItem(itemId, content) {
         <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#${itemId}-collapse">
             Sensor number: ${content.sensorNum}
         </button>
-        <button class="btn btn-warning" type="button">
-            Edit
-        </button>
-        <button class="btn btn-danger" type="button">
-            Delete
-        </button>
+        <button class="btn btn-warning" id="${itemId}-sensor-edit"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button class="btn btn-danger"  id="${itemId}-sensor-delete"><i class="fa-solid fa-trash-can"></i></button>
         <div id="${itemId}-collapse" class="collapse">
             <hr>
             <h6 class="mb-2">Rack number: ${content.rack.rackNum}</h6>
@@ -164,12 +149,8 @@ function createServerItem(itemId, content) {
         <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#${itemId}-collapse">
             Server number: ${content.serverNum}
         </button>
-        <button class="btn btn-warning" type="button">
-            Edit
-        </button>
-        <button class="btn btn-danger" type="button">
-            Delete
-        </button>
+        <button class="btn btn-warning" id="${itemId}-server-edit"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button class="btn btn-danger"  id="${itemId}-server-delete"><i class="fa-solid fa-trash-can"></i></button>
         <div id="${itemId}-collapse" class="collapse">
             <hr>
             <h6 class="mb-2">Rack number: ${content.rack.rackNum}</h6>
@@ -179,54 +160,4 @@ function createServerItem(itemId, content) {
         </div>
     `)
     return createListGroupItem(itemId, pduContentObj);
-}
-
-
-//modal functions
-const MODAL_FORM_NAME_RACK = "RackForm";
-const MODAL_FORM_NAME_PDU = "PduForm";
-const MODAL_FORM_NAME_SENSOR = "SensorForm";
-const MODAL_FORM_NAME_SERVER = "ServerForm";
-
-const MODAL_ID_RACK_FORM = "rackFormModal";
-const MODAL_ID_PDU_FORM = "pduFormModal";
-const MODAL_ID_SENSOR_FORM = "sensorFormModal";
-const MODAL_ID_SERVER_FORM = "serverFormModal";
-const MODAL_ID_DELETE_FORM = "deleteFormModal";
-
-const MODAL_MODE_ADD = "formSubmitAdd";
-const MODAL_MODE_EDIT = "formSubmitEdit";
-const MODAL_MODE_DELETE = "formSubmitDelete";
-function showModal(modalFormName, modalMode, modalData){
-    let modalObj;
-    if(modalFormName === MODAL_FORM_NAME_RACK){
-        if(modalMode === MODAL_MODE_ADD){
-            modalObj = $("#"+MODAL_ID_RACK_FORM);
-            modalObj.find(".modal-title").html("새로운 랙 추가");
-            modalObj.find("input[name='rackNum']").val("");
-            modalObj.find("input[name='info']").val("");
-            const formObj = modalObj.find("form");
-            formObj.attr("data-submit-mode", MODAL_MODE_ADD);
-            formObj.attr("data-form-name", MODAL_FORM_NAME_RACK);
-        }
-        else if(modalMode === MODAL_MODE_EDIT){
-            modalObj = $("#"+MODAL_ID_RACK_FORM);
-            modalObj.find(".modal-title").html(modalData.rackNum+"번 랙 수정");
-            modalObj.find("input[name='rackNum']").val(modalData.rackNum);
-            modalObj.find("input[name='info']").val(modalData.info);
-            const formObj = modalObj.find("form");
-            formObj.attr("data-submit-mode", MODAL_MODE_EDIT);
-            formObj.attr("data-form-name", MODAL_FORM_NAME_RACK);
-        }
-        else if(modalMode === MODAL_MODE_DELETE){
-            modalObj = $("#"+MODAL_ID_DELETE_FORM);
-            modalObj.find(".modal-title").html(modalData.rackNum+"번 랙 삭제");
-            const formObj = modalObj.find("form");
-            formObj.attr("data-submit-mode", MODAL_MODE_DELETE);
-            formObj.attr("data-form-name", MODAL_FORM_NAME_RACK);
-            formObj.attr("data-rack-num", modalData.rackNum);
-            
-        }
-    }
-    modalObj.modal('show');
 }

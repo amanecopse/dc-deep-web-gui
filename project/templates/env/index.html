@@ -5,6 +5,7 @@
 
 <!-- List render -->
 <script src="{% static 'js/item-list.js' %}"></script>
+<script src="{% static 'js/modal.js' %}"></script>
 
 <!-- Modal Form Submit -->
 <script>
@@ -15,6 +16,17 @@
     const REQUEST_DATA_VALUE_MODE_SUBMIT_ADD = "formSubmitAdd";
     const REQUEST_DATA_VALUE_MODE_SUBMIT_EDIT = "formSubmitEdit";
     const REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE = "formSubmitDelete";
+
+    const URL_ENV_INDEX = "{% url 'env:index' %}";
+
+    // $.ajax({
+    //     type: "GET",
+    //     url: "{% url 'env:index' %}",
+    //     data: {},
+    //     success: function (res) {
+    //         console.log(res.serverForm)
+    //     }
+    // })
 
     function onSubmitForm(e, modalId) {
         e.preventDefault();
@@ -31,52 +43,58 @@
 
         refreshList(
             'containment-info',
-            "{% url 'env:index' %}" + `?mode=${submitMode}&formName=${formName}`,
+            URL_ENV_INDEX + `?mode=${submitMode}&formName=${formName}`,
             data,
             createRackItem,
-            () => {
+            (res) => {
                 $('#' + modalId).modal('hide');
+                renderModalBody(MODAL_ID_RACK_FORM, createModalFormBody(res.rackForm));
+                renderModalBody(MODAL_ID_PDU_FORM, createModalFormBody(res.pduForm));
+                renderModalBody(MODAL_ID_SENSOR_FORM, createModalFormBody(res.sensorForm));
+                renderModalBody(MODAL_ID_SERVER_FORM, createModalFormBody(res.serverForm));
                 console.log('form submit success');
             }
         );
-        // $.ajax({
-        //     type: "POST",
-        //     url: "{% url 'env:index' %}" + `?type=${submitType}&formName=${formName}`,
-        //     data: serializedForm,
-        //     success: function (res) {
-        //         $('#' + modalId).modal('hide')
-        //         renderItemList('containment-info', res.listData, createRackItem);
-        //         console.log('form submit success');
-        //     }
-        // })
     }
 </script>
 
-<!-- Rack modal trigger -->
-<button type="button" class="btn btn-primary" onclick="showModal(MODAL_TYPE_RACK, MODAL_MODE_ADD)">
-    새로운 랙 추가
+<!-- Rack Add modal trigger -->
+<button type="button" class="btn btn-primary" onclick="showModal(MODAL_FORM_NAME_RACK, MODAL_MODE_ADD)">
+    랙 <i class="fa-solid fa-circle-plus"></i>
+</button>
+<!-- Pdu Add modal trigger -->
+<button type="button" class="btn btn-primary" onclick="showModal(MODAL_FORM_NAME_PDU, MODAL_MODE_ADD)">
+    PDU <i class="fa-solid fa-circle-plus"></i>
+</button>
+<!-- Sensor Add modal trigger -->
+<button type="button" class="btn btn-primary" onclick="showModal(MODAL_FORM_NAME_SENSOR, MODAL_MODE_ADD)">
+    센서 <i class="fa-solid fa-circle-plus"></i>
+</button>
+<!-- Server Add modal trigger -->
+<button type="button" class="btn btn-primary" onclick="showModal(MODAL_FORM_NAME_SERVER, MODAL_MODE_ADD)">
+    서버 <i class="fa-solid fa-circle-plus"></i>
 </button>
 
 <!-- Rack form modal -->
-<div class="modal fade" id="rackFormModal" tabindex="-1">
+<div class="modal modal-lg fade" id="rackFormModal" tabindex="-1">
     <div class="modal-dialog">
-        <form class="modal-content" onsubmit="onSubmitForm(event, 'rackFormModal');">
+        <form class="modal-content" onsubmit="onSubmitForm(event, MODAL_ID_RACK_FORM);">
             <div class="modal-header">
                 <h5 class="modal-title">Modal title</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            {% csrf_token %}
             <div class="modal-body">
-                {% csrf_token %}
-                {{ form.non_field_errors }}
+                {{ rackForm.non_field_errors }}
                 <div class="fieldWrapper mb-3">
-                    {{ form.rackNum.errors }}
-                    <label class="col-5 text-nowrap" for="{{ form.rackNum.id_for_label }}">Rack Number: </label>
-                    {{ form.rackNum }}
+                    {{ rackForm.rackNum.errors }}
+                    <label class="col-5 text-nowrap" for="{{ rackForm.rackNum.id_for_label }}">Rack Number: </label>
+                    {{ rackForm.rackNum }}
                 </div>
                 <div class="fieldWrapper">
-                    {{ form.info.errors }}
-                    <label class="col-5 text-nowrap" for="{{ form.info.id_for_label }}">Infomation: </label>
-                    {{ form.info }}
+                    {{ rackForm.info.errors }}
+                    <label class="col-5 text-nowrap" for="{{ rackForm.info.id_for_label }}">Infomation: </label>
+                    {{ rackForm.info }}
                 </div>
             </div>
             <div class="modal-footer">
@@ -88,25 +106,164 @@
 </div>
 
 <!-- PDU form modal -->
-<div class="modal fade" id="pduFormModal" tabindex="-1">
+<div class="modal modal-lg fade" id="pduFormModal" tabindex="-1">
     <div class="modal-dialog">
-        <form class="modal-content" onsubmit="onSubmitForm(event, 'pduFormModal');">
+        <form class="modal-content" onsubmit="onSubmitForm(event, MODAL_ID_PDU_FORM);">
             <div class="modal-header">
                 <h5 class="modal-title">Modal title</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            {% csrf_token %}
             <div class="modal-body">
-                {% csrf_token %}
-                {{ form.non_field_errors }}
+                {{ pduForm.non_field_errors }}
                 <div class="fieldWrapper mb-3">
-                    {{ form.rackNum.errors }}
-                    <label class="col-5 text-nowrap" for="{{ form.rackNum.id_for_label }}">Rack Number: </label>
-                    {{ form.rackNum }}
+                    {{ pduForm.rack.errors }}
+                    <label class="col-5 text-nowrap" for="{{ pduForm.rack.id_for_label }}">Rack: </label>
+                    {{ pduForm.rack }}
                 </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ pduForm.pduNum.errors }}
+                    <label class="col-5 text-nowrap" for="{{ pduForm.pduNum.id_for_label }}">PDU Number: </label>
+                    {{ pduForm.pduNum }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ pduForm.outputCount.errors }}
+                    <label class="col-5 text-nowrap" for="{{ pduForm.outputCount.id_for_label }}">Output count: </label>
+                    {{ pduForm.outputCount }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ pduForm.ip.errors }}
+                    <label class="col-5 text-nowrap" for="{{ pduForm.ip.id_for_label }}">IPv4: </label>
+                    {{ pduForm.ip }}
+                </div>
+
                 <div class="fieldWrapper">
-                    {{ form.info.errors }}
-                    <label class="col-5 text-nowrap" for="{{ form.info.id_for_label }}">Infomation: </label>
-                    {{ form.info }}
+                    {{ pduForm.info.errors }}
+                    <label class="col-5 text-nowrap" for="{{ pduForm.info.id_for_label }}">Infomation: </label>
+                    {{ pduForm.info }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-primary" name="confirm" value="Confirm">
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Sensor form modal -->
+<div class="modal modal-lg fade" id="sensorFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="onSubmitForm(event, MODAL_ID_SENSOR_FORM);">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            {% csrf_token %}
+            <div class="modal-body">
+                {{ sensorForm.non_field_errors }}
+                <div class="fieldWrapper mb-3">
+                    {{ sensorForm.rack.errors }}
+                    <label class="col-5 text-nowrap" for="{{ sensorForm.rack.id_for_label }}">Rack: </label>
+                    {{ sensorForm.rack }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ sensorForm.pdu.errors }}
+                    <label class="col-5 text-nowrap" for="{{ sensorForm.pdu.id_for_label }}">PDU: </label>
+                    {{ sensorForm.pdu }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ sensorForm.pduOutput.errors }}
+                    <label class="col-5 text-nowrap" for="{{ sensorForm.pduOutput.id_for_label }}">PDU output: </label>
+                    {{ sensorForm.pduOutput }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ sensorForm.sensorNum.errors }}
+                    <label class="col-5 text-nowrap" for="{{ sensorForm.sensorNum.id_for_label }}">Sensor number:
+                    </label>
+                    {{ sensorForm.sensorNum }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ sensorForm.mac.errors }}
+                    <label class="col-5 text-nowrap" for="{{ sensorForm.mac.id_for_label }}">MAC: </label>
+                    {{ sensorForm.mac }}
+                </div>
+
+                <div class="fieldWrapper">
+                    {{ sensorForm.info.errors }}
+                    <label class="col-5 text-nowrap" for="{{ sensorForm.info.id_for_label }}">Infomation: </label>
+                    {{ sensorForm.info }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <input type="submit" class="btn btn-primary" name="confirm" value="Confirm">
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Server form modal -->
+<div class="modal modal-lg fade" id="serverFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" onsubmit="onSubmitForm(event, MODAL_ID_SERVER_FORM);">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            {% csrf_token %}
+            <div class="modal-body">
+                {{ serverForm.non_field_errors }}
+                <div class="fieldWrapper mb-3">
+                    {{ serverForm.rack.errors }}
+                    <label class="col-5 text-nowrap" for="{{ serverForm.rack.id_for_label }}">Rack: </label>
+                    {{ serverForm.rack }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ serverForm.pdu1.errors }}
+                    <label class="col-5 text-nowrap" for="{{ serverForm.pdu1.id_for_label }}">PDU1: </label>
+                    {{ serverForm.pdu1 }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ serverForm.pdu2.errors }}
+                    <label class="col-5 text-nowrap" for="{{ serverForm.pdu2.id_for_label }}">PDU2: </label>
+                    {{ serverForm.pdu2 }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ serverForm.pdu1Output.errors }}
+                    <label class="col-5 text-nowrap" for="{{ serverForm.pdu1Output.id_for_label }}">PDU1 output:
+                    </label>
+                    {{ serverForm.pdu1Output }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ serverForm.pdu2Output.errors }}
+                    <label class="col-5 text-nowrap" for="{{ serverForm.pdu2Output.id_for_label }}">PDU2 output:
+                    </label>
+                    {{ serverForm.pdu2Output }}
+                </div>
+
+                <div class="fieldWrapper mb-3">
+                    {{ serverForm.serverNum.errors }}
+                    <label class="col-5 text-nowrap" for="{{ serverForm.serverNum.id_for_label }}">Server number:
+                    </label>
+                    {{ serverForm.serverNum }}
+                </div>
+
+                <div class="fieldWrapper">
+                    {{ serverForm.info.errors }}
+                    <label class="col-5 text-nowrap" for="{{ serverForm.info.id_for_label }}">Infomation: </label>
+                    {{ serverForm.info }}
                 </div>
             </div>
             <div class="modal-footer">
@@ -118,9 +275,9 @@
 </div>
 
 <!-- Delete form modal -->
-<div class="modal fade" id="deleteFormModal" tabindex="-1">
+<div class="modal modal-lg fade" id="deleteFormModal" tabindex="-1">
     <div class="modal-dialog">
-        <form class="modal-content" onsubmit="onSubmitForm(event, 'deleteFormModal');">
+        <form class="modal-content" onsubmit="onSubmitForm(event, MODAL_ID_DELETE_FORM);">
             <div class="modal-header">
                 <h5 class="modal-title">Modal title</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -143,7 +300,6 @@
 <script>
     const listData = JSON.parse('{{listData|safe}}');
     renderItemList('containment-info', listData, createRackItem);
-    console.log(listData)
 </script>
 
 {% endblock %}
