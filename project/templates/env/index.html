@@ -33,6 +33,8 @@
         let data;
         const submitMode = e.target.dataset.submitMode;
         const formName = e.target.dataset.formName;
+        const rackNum = e.target.dataset.rackNum;
+        const deviceNum = e.target.dataset.deviceNum;
 
         if (submitMode === REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE) {
             data = e.target.dataset;
@@ -43,7 +45,7 @@
 
         refreshList(
             'containment-info',
-            URL_ENV_INDEX + `?mode=${submitMode}&formName=${formName}`,
+            URL_ENV_INDEX + `?mode=${submitMode}&formName=${formName}&rackNum=${rackNum}&deviceNum=${deviceNum}`,
             data,
             createRackItem,
             (res) => {

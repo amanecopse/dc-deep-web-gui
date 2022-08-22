@@ -32,19 +32,19 @@ function showModal(modalFormName, modalMode, modalData){
             modalObj.find(".modal-title").html(modalData.rackNum+"번 랙 삭제");
         }
         else if(modalFormName === MODAL_FORM_NAME_PDU){
-            formObj.attr("data-rack-num", modalData.rack.rackNum);
-            formObj.attr("data-pdu-num", modalData.pduNum);
-            modalObj.find(".modal-title").html(modalData.pduNum+"번 PDU 삭제");
+            formObj.attr("data-rack-num", modalData.rackNum);
+            formObj.attr("data-device-num", modalData.deviceNum);
+            modalObj.find(".modal-title").html(modalData.deviceNum+"번 PDU 삭제");
         }
         else if(modalFormName === MODAL_FORM_NAME_SENSOR){
-            formObj.attr("data-rack-num", modalData.rack.rackNum);
-            formObj.attr("data-sensor-num", modalData.sensorNum);
-            modalObj.find(".modal-title").html(modalData.sensorNum+"번 센서 삭제");
+            formObj.attr("data-rack-num", modalData.rackNum);
+            formObj.attr("data-device-num", modalData.deviceNum);
+            modalObj.find(".modal-title").html(modalData.deviceNum+"번 센서 삭제");
         }
         else if(modalFormName === MODAL_FORM_NAME_SERVER){
-            formObj.attr("data-rack-num", modalData.rack.rackNum);
-            formObj.attr("data-server-num", modalData.serverNum);
-            modalObj.find(".modal-title").html(modalData.serverNum+"번 서버 삭제");
+            formObj.attr("data-rack-num", modalData.rackNum);
+            formObj.attr("data-device-num", modalData.deviceNum);
+            modalObj.find(".modal-title").html(modalData.deviceNum+"번 서버 삭제");
         }
         modalObj.modal('show');
     }
@@ -92,20 +92,22 @@ function showModal(modalFormName, modalMode, modalData){
                     }
                 }
                 else if(modalMode === MODAL_MODE_EDIT){
+                    formObj.attr("data-rack-num", modalData.rackNum);
+                    formObj.attr("data-device-num", modalData.deviceNum);
                     if(modalFormName === MODAL_FORM_NAME_RACK){
                         modalObj.find(".modal-title").html(modalData.rackNum+"번 랙 수정");
                         modalObj.modal('show');
                     }
                     else if(modalFormName === MODAL_FORM_NAME_PDU){
-                        modalObj.find(".modal-title").html(modalData.pduNum+"번 PDU 수정");
+                        modalObj.find(".modal-title").html(modalData.deviceNum+"번 PDU 수정");
                         modalObj.modal('show');
                     }
                     else if(modalFormName === MODAL_FORM_NAME_SENSOR){
-                        modalObj.find(".modal-title").html(modalData.sensorNum+"번 센서 수정");
+                        modalObj.find(".modal-title").html(modalData.deviceNum+"번 센서 수정");
                         modalObj.modal('show');
                     }
                     else if(modalFormName === MODAL_FORM_NAME_SERVER){
-                        modalObj.find(".modal-title").html(modalData.serverNum+"번 서버 수정");
+                        modalObj.find(".modal-title").html(modalData.deviceNum+"번 서버 수정");
                         modalObj.modal('show');
                     }
                 }

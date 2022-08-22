@@ -10,6 +10,7 @@ from .models.dataCenter import Rack, Server
 from project.apps.env.forms import *
 
 REQUEST_DATA_KEY_FORM_NAME = "formName"
+REQUEST_DATA_KEY_DEVICE_NUM = "deviceNum"
 REQUEST_DATA_KEY_MODE = "mode"
 
 REQUEST_DATA_VALUE_RACK_FORM = "RackForm"
@@ -64,28 +65,31 @@ class EnvView(View):
 
                 if formName == REQUEST_DATA_VALUE_RACK_FORM:
                     rackNum = request.GET.get(MODEL_FIELD_RACK_NUM)
-                    form = RackForm(instance=Rack.objects.get(rackNum=rackNum))
+                    modelInstace = Rack.objects.get(rackNum=rackNum)
+                    form = RackForm(instance=modelInstace)
                 elif formName == REQUEST_DATA_VALUE_PDU_FORM:
-                    rackNum = request.GET.get(
-                        MODEL_FIELD_RACK).get(MODEL_FIELD_RACK_NUM)
+                    rackNum = request.GET.get(MODEL_FIELD_RACK_NUM)
                     rack = Rack.objects.get(rackNum=rackNum)
-                    pduNum = request.GET.get(MODEL_FIELD_PDU_NUM)
-                    form = PduForm(instance=Pdu.objects.get(
-                        rack=rack, pduNum=pduNum))
+                    pduNum = request.GET.get(REQUEST_DATA_KEY_DEVICE_NUM)
+                    modelInstace = Pdu.objects.get(
+                        rack=rack, pduNum=pduNum)
+                    form = PduForm(instance=modelInstace)
                 elif formName == REQUEST_DATA_VALUE_SENSOR_FORM:
-                    rackNum = request.GET.get(
-                        MODEL_FIELD_RACK).get(MODEL_FIELD_RACK_NUM)
+                    rackNum = request.GET.get(MODEL_FIELD_RACK_NUM)
                     rack = Rack.objects.get(rackNum=rackNum)
-                    sensorNum = request.GET.get(MODEL_FIELD_SENSOR_NUM)
+                    sensorNum = request.GET.get(REQUEST_DATA_KEY_DEVICE_NUM)
+                    modelInstace = Sensor.objects.get(
+                        rack=rack, sensorNum=sensorNum)
                     form = SensorForm(
-                        instance=Sensor.objects.get(rack=rack, sensorNum=sensorNum))
+                        instance=modelInstace)
                 elif formName == REQUEST_DATA_VALUE_SERVER_FORM:
-                    rackNum = request.GET.get(
-                        MODEL_FIELD_RACK).get(MODEL_FIELD_RACK_NUM)
+                    rackNum = request.GET.get(MODEL_FIELD_RACK_NUM)
                     rack = Rack.objects.get(rackNum=rackNum)
-                    serverNum = request.GET.get(MODEL_FIELD_SERVER_NUM)
+                    serverNum = request.GET.get(REQUEST_DATA_KEY_DEVICE_NUM)
+                    modelInstace = Server.objects.get(
+                        rack=rack, serverNum=serverNum)
                     form = ServerForm(
-                        instance=Server.objects.get(rack=rack, serverNum=serverNum))
+                        instance=modelInstace)
 
                 else:  # 알 수 없는 폼
                     return
@@ -122,12 +126,37 @@ class EnvView(View):
             # Edit 요청인 경우
             elif requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_EDIT:
                 formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
+                rackNum = request.GET.get(MODEL_FIELD_RACK_NUM)
+                deviceNum = request.GET.get(REQUEST_DATA_KEY_DEVICE_NUM)
 
                 # Rack form
                 if formName == REQUEST_DATA_VALUE_RACK_FORM:
-                    rackNum = request.POST.get(MODEL_FIELD_RACK_NUM)
                     form = RackForm(
                         request.POST, instance=Rack.objects.get(rackNum=rackNum))
+                    if not form.is_valid:
+                        return
+                    form.save()
+                # PDU form
+                elif formName == REQUEST_DATA_VALUE_PDU_FORM:
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    form = PduForm(
+                        request.POST, instance=Pdu.objects.get(rack=rack, pduNum=deviceNum))
+                    if not form.is_valid:
+                        return
+                    form.save()
+                # Sensor form
+                elif formName == REQUEST_DATA_VALUE_SENSOR_FORM:
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    form = SensorForm(
+                        request.POST, instance=Sensor.objects.get(rack=rack, sensorNum=deviceNum))
+                    if not form.is_valid:
+                        return
+                    form.save()
+                # Server form
+                elif formName == REQUEST_DATA_VALUE_SERVER_FORM:
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    form = ServerForm(
+                        request.POST, instance=Server.objects.get(rack=rack, serverNum=deviceNum))
                     if not form.is_valid:
                         return
                     form.save()
@@ -138,12 +167,28 @@ class EnvView(View):
             # Delete 요청인 경우
             elif requestMode == REQUEST_DATA_VALUE_MODE_SUBMIT_DELETE:
                 formName = request.GET.get(REQUEST_DATA_KEY_FORM_NAME)
+                rackNum = request.GET.get(MODEL_FIELD_RACK_NUM)
+                deviceNum = request.GET.get(REQUEST_DATA_KEY_DEVICE_NUM)
 
                 # Rack form
                 if formName == REQUEST_DATA_VALUE_RACK_FORM:
-                    rackNum = request.POST.get(MODEL_FIELD_RACK_NUM)
                     rack = Rack.objects.get(rackNum=rackNum)
                     rack.delete()
+                # PDU form
+                elif formName == REQUEST_DATA_VALUE_PDU_FORM:
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    pdu = Pdu.objects.get(rack=rack, pduNum=deviceNum)
+                    pdu.delete()
+                # Sensor form
+                elif formName == REQUEST_DATA_VALUE_SENSOR_FORM:
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    sensor = Sensor.objects.get(rack=rack, sensorNum=deviceNum)
+                    sensor.delete()
+                # Server form
+                elif formName == REQUEST_DATA_VALUE_SERVER_FORM:
+                    rack = Rack.objects.get(rackNum=rackNum)
+                    server = Server.objects.get(rack=rack, serverNum=deviceNum)
+                    server.delete()
                 else:  # 알 수 없는 폼
                     return
             else:  # 알 수 없는 ajax 요청
