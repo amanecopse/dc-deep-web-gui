@@ -14,12 +14,12 @@ def deleteRecordWithDateRange(model: models.Model, dateFrom: datetime, dateTo: d
                              dateTime__lte=dateTo).delete()
 
 
-def getDataFromNDaysAgo(model: models.Model, nDays) -> models.QuerySet:
+def getDataFromNDaysAgo(model: models.Model, nDays, **kwargs) -> models.QuerySet:
     return model.objects.filter(dateTime__gte=datetime.today() -
-                                timedelta(days=nDays))
+                                timedelta(days=nDays), **kwargs)
 
 
-def getLastNData(model: models.Model, n):
-    arr = list(model.objects.order_by('-id')[:n])
+def getLastNData(model: models.Model, n, **kwargs):
+    arr = list(model.objects.filter(**kwargs).order_by('-id')[:n])
     arr.reverse()
     return arr

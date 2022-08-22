@@ -1,11 +1,12 @@
 from django.http import JsonResponse
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import get_object_or_404, render, HttpResponse
 from django.db import models
 from django.views import View
 from pyModbusTCP.client import ModbusClient
 import logging
 import json
-from project.apps.env.models.power import PduData
+from project.apps.env.models.dataCenter import Rack
+from project.apps.env.models.power import Pdu, PduData
 from .pduUtil import pduUtil
 from project.apps.app.dbUtil import getDataFromNDaysAgo, getLastNData
 
@@ -18,7 +19,9 @@ class PduView(View):
     REQUEST_TYPE_TABLE_RENDER = 'table render'
     REQUEST_TYPE_SWITCH_SETTING = 'switch setting'
 
-    def get(self, request):
+    def get(self, request, rackNum, pduNum):
+        rack = get_object_or_404(Rack, rackNum=rackNum)
+        pdu = get_object_or_404(Pdu, rack=rack, pduNum=pduNum)
         if request.is_ajax():
             logger.info('ajax request with GET method')
             requestType = request.GET.get('type', 0)
@@ -33,13 +36,18 @@ class PduView(View):
                 return JsonResponse(tableData, safe=False)
 
         modbusClient = ModbusClient(
-            host="10.0.0.54", port=502, unit_id=1, auto_open=True)
+            host=pdu.ip, port=502, unit_id=1, auto_open=True)
 
-        return self.renderPage(request, modbusClient)
+        if modbusClient.open():
+            return self.renderPage(request, modbusClient, rackNum, pduNum, pdu)
+        else:
+            return HttpResponse(f'IP {pdu.ip} is not available')
 
-    def post(self, request):
+    def post(self, request, rackNum, pduNum):
+        rack = get_object_or_404(Rack, rackNum=rackNum)
+        pdu = get_object_or_404(Pdu, rack=rack, pduNum=pduNum)
         modbusClient = ModbusClient(
-            host="10.0.0.54", port=502, unit_id=1, auto_open=True)
+            host=pdu.ip, port=502, unit_id=1, auto_open=True)
 
         if request.is_ajax():
             logger.info('ajax request with POST method')
@@ -58,9 +66,9 @@ class PduView(View):
                     101, pduUtil.MAX_OUTPUT_NUMBER)
                 return JsonResponse(checks, safe=False)
 
-        return self.renderPage(request, modbusClient)
+        return self.renderPage(request, modbusClient, rackNum, pduNum, pdu)
 
-    def renderPage(self, request, modbusClient: ModbusClient):
+    def renderPage(self, request, modbusClient: ModbusClient, rackNum, pduNum, pdu):
         logger = logging.getLogger(__name__)
         logger.info("index page render")
         print("index page render")
@@ -69,11 +77,13 @@ class PduView(View):
             101, pduUtil.MAX_OUTPUT_NUMBER)
         freq_volt = modbusClient.read_input_registers(0, 2)
 
-        xVal, yVals = processPlotData(pduUtil.PDU_VARIABLE_ENERGY_COUNTER)
+        xVal, yVals = processPlotData(pduUtil.PDU_VARIABLE_ENERGY_COUNTER, pdu)
         tableData = list(map(
-            lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, pduUtil.MAX_OUTPUT_NUMBER+1)))
+            lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, pduUtil.MAX_OUTPUT_NUMBER+1, pdu=pdu)))
 
-        data = {'freqeuncy': round(freq_volt[0]/100),
+        data = {'rackNum': rackNum,
+                'pduNum': pduNum,
+                'freqeuncy': round(freq_volt[0]/100),
                 'voltage': round(freq_volt[1]/10),
                 'outputCheck': outputs,
                 'xVal': xVal, 'yVals': yVals, 'tableData': tableData}
@@ -81,15 +91,14 @@ class PduView(View):
         return render(request, 'pdu/index.html', data)
 
 
-def processPlotData(fieldName):
-    querySet = getDataFromNDaysAgo(PduData, 10)
+def processPlotData(fieldName, pdu):
+    querySet = getDataFromNDaysAgo(PduData, 10, pdu=pdu)
 
     xVal = querySet.filter(outputNum=0).values_list('dateTime')
     if xVal != None:
         xVal = list(map(
             lambda x: f'{{"year": {x[0].year}, "month": {x[0].month}, "month": {x[0].month}, "day": {x[0].day}, "hour": {x[0].hour}, "minute": {x[0].minute}}}', xVal))
     xVal = json.loads(f"[{','.join(xVal)}]")
-
     yVals = []
     for i in range(pduUtil.MAX_OUTPUT_NUMBER+1):
         yVal = querySet.filter(outputNum=i).values_list(fieldName)

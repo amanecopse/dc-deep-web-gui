@@ -8,6 +8,9 @@
 <script src="{% static 'js/data-chart.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/data-table.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/output-switch-control.js' %}" type="text/javascript"></script>
+<script>
+    const URL_PDU_INDEX = '{% url "pdu:index" rackNum pduNum%}';
+</script>
 
 <div class="row card m-1">
     <div class="card-body">
@@ -92,16 +95,16 @@
 
     renderTable(tableData, rowLabel, colLabel, 'data-table')
 
-    renderSwitch('{% url "pdu:index"%}', JSON.parse('{{ outputCheck|safe}}'), 'output-form')
+    renderSwitch(URL_PDU_INDEX, JSON.parse('{{ outputCheck|safe}}'), 'output-form')
 
     $(document).ready(
         function () {// 페이지 로드 이후 처리될 동작들
             $('#energy-chart-refresh').on('click', () => {
-                refreshChart('{% url "pdu:index"%}', 'energyCounter', 'energy-data-chart');
+                refreshChart(URL_PDU_INDEX, 'energyCounter', 'energy-data-chart');
             })
 
             $('#table-refresh').on('click', () => {
-                refreshTable('{% url "pdu:index"%}', rowLabel, colLabel, 'data-table');
+                refreshTable(URL_PDU_INDEX, rowLabel, colLabel, 'data-table');
             })
         }
     )
