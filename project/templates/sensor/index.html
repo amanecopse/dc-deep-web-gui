@@ -1,0 +1,76 @@
+{% extends 'auth.html' %}
+{% block content_auth %}
+
+{% load static %}
+{% load app_extras %}
+
+<!-- data render js -->
+<script src="{% static 'js/data-chart.js' %}" type="text/javascript"></script>
+<script>
+    const URL_SENSOR_INDEX = '{% url "sensor:index" rackNum sensorNum%}';
+</script>
+{{xVal|safe}}
+<div class="row card m-1">
+    <div class="card-body">
+        <h3>
+            <div class="d-none d-sm-inline">온도, 습도 대시보드</div>
+            <div class="small text-muted d-inline">{{rackNum}}번 랙의 {{sensorNum}}번 센서</div>
+        </h3>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="card m-1">
+                <div class="card-header">
+                    온도(°C)
+                    <i class="fa-solid fa-arrow-rotate-right" id="temperature-chart-refresh"></i>
+                </div>
+
+                <div class="card-body">
+                    <!--차트가 그려질 부분-->
+                    <canvas id="temperature-data-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card m-1">
+                <div class="card-header">
+                    습도(rh)
+                    <i class="fa-solid fa-arrow-rotate-right" id="humidity-chart-refresh"></i>
+                </div>
+
+                <div class="card-body">
+                    <!--차트가 그려질 부분-->
+                    <canvas id="humidity-data-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const temperaturXVal = JSON.parse("{{temperature.xVal|safe}}".replace(/'/ig, '"'));
+    const temperaturYVal = JSON.parse("{{temperature.yVal|safe}}".replace(/'/ig, '"'));
+    renderChart(temperaturXVal, [temperaturYVal], 'temperature-data-chart', 10, ["temperature"]);
+
+    const humidityXVal = JSON.parse("{{humidity.xVal|safe}}".replace(/'/ig, '"'));
+    const humidityYVal = JSON.parse("{{humidity.yVal|safe}}".replace(/'/ig, '"'));
+    renderChart(humidityXVal, [humidityYVal], 'humidity-data-chart', 10, ["humidity"]);
+
+    $(document).ready(
+        function () {// 페이지 로드 이후 처리될 동작들
+            $('#temperature-chart-refresh').on('click', () => {
+                refreshChart(URL_SENSOR_INDEX, 'temperature', 'temperature-data-chart', 10, ["temperature"]);
+            })
+
+            $('#humidity-chart-refresh').on('click', () => {
+                refreshChart(URL_SENSOR_INDEX, 'humidity', 'humidity-data-chart', 10, ["humidity"]);
+            })
+        }
+    )
+</script>
+{% endblock %}

@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_crontab',
     'rest_framework',
+    'rest_framework.authtoken',
     'project.apps.app',
     'project.apps.pdu',
     'project.apps.env',
+    'project.apps.sensor',
 ]
 
 MIDDLEWARE = [
