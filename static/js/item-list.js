@@ -154,7 +154,7 @@ function createSensorItem(itemId, content) {
                 <button class="btn btn-danger"  id="${itemId}-sensor-delete"><i class="fa-solid fa-trash-can"></i></button>
             </form>
             <hr>
-            <div id="${itemId}-collapse" class="collapse p-4">
+            <div id="${itemId}-collapse" class="collapse p-4 list-group-item-action">
                 <h6 class="mb-2">Rack number: ${content.rack.rackNum}</h6>
                 <h6 class="mb-2">PDU number: ${content.pdu.pduNum}, output: ${content.pduOutput}</h6>
                 <h6 class="mb-2 text-muted">- ${content.info}</h6>
@@ -164,6 +164,7 @@ function createSensorItem(itemId, content) {
 
     const sensorEditObj = sensorContentObj.find(`#${itemId}-sensor-edit`);
     const sensorDeleteObj = sensorContentObj.find(`#${itemId}-sensor-delete`);
+    const sensorCollapseObj = sensorContentObj.find(`#${itemId}-collapse`);
 
     // 편집, 삭제 버튼에 이벤트 할당
     sensorEditObj.on('click', (e)=>{
@@ -174,6 +175,11 @@ function createSensorItem(itemId, content) {
     sensorDeleteObj.on('click', (e)=>{
         e.preventDefault();
         showModal(MODAL_FORM_NAME_SENSOR, MODAL_MODE_DELETE, {rackNum:content.rack.rackNum, deviceNum:content.sensorNum});
+    });
+
+    sensorCollapseObj.on('click', (e)=>{
+        e.preventDefault();
+        window.location.href = `/sensor/${content.rack.rackNum}/${content.sensorNum}`
     });
 
     return createListGroupItem(itemId, sensorContentObj);
