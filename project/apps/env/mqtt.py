@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt
 
 def on_connect(client, userdata, flags, rc):
     if client == MqttClient.getClient():
-        client.subscribe("/cordy/#")
+        client.subscribe("/dcDeep/sensor")
 
 
 def on_message(client, userdata, msg):
@@ -12,7 +12,9 @@ def on_message(client, userdata, msg):
 
     try:
         print(msg.topic+" "+str(msg.payload), client)
+        print(json.loads(msg.payload))
         insertRecordWithJsonDict(json.loads(msg.payload))
+        print(msg.topic+" "+str(msg.payload), client)
     except:
         print(__name__+': decoding error')
 
