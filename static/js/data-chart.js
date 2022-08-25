@@ -1,23 +1,20 @@
-// const xVal = JSON.parse('{{xVal|safe}}');
-//         const yVals = JSON.parse('{{yVals|safe}}');
+const chartDict = {};
 
-let dataChart;
-
-function refreshChart(url, fieldName, chartId) {
+function refreshChart(url, fieldName, chartId, maxItemCount = 50, labels) {
     $.ajax({
         type: "GET",
         url: url,
         data: { "type": "chart render", "fieldName": fieldName },
         success: function (res) {
-            renderChart(res.xVal, res.yVals, 10, chartId);
+            renderChart(res.xVal, res.yVals, chartId, maxItemCount, labels);
             console.log('chart re-render');
         }
     });
 }
 
-function renderChart(xVal, yVals, maxXValCount, chartId){
+function renderChart(xVal, yVals, chartId, maxItemCount = 50, labels){
 
-    if(dataChart !== undefined) dataChart.destroy();
+    if(chartDict[chartId] !== undefined) chartDict[chartId].destroy();
 
     const datasets = [];
     const colorset = [
@@ -32,26 +29,30 @@ function renderChart(xVal, yVals, maxXValCount, chartId){
         'rgba(200, 50, 64, 1)',
     ];
 
-    xVal = xVal.slice(Math.max(xVal.length - maxXValCount, 0))
+    if(labels === undefined){
+        labels = []
+        for (let i in yVals) {
+            let label = `output${i}`;
+            labels.push(label);
+        }
+    }
+
+    xVal = xVal.slice(Math.max(xVal.length - maxItemCount, 0))
     for (let i in yVals) {
-        yVals[i] = yVals[i].slice(Math.max(yVals[i].length - maxXValCount, 0))
-        let label;
-        if (Number(i) === 0)
-            label = 'total';
-        else
-            label = `output${i}`;
+        //x축 데이터 개수를 maxItemCount만큼 제한
+        yVals[i] = yVals[i].slice(Math.max(yVals[i].length - maxItemCount, 0))
 
         datasets.push({
-            label: label, //그래프 제목
+            label: labels[i], //그래프 제목
             fill: false, // line 형태일 때, 선 안쪽을 채우는지 안채우는지
             data: yVals[i],
             backgroundColor: [
                 //색상
-                colorset[i]
+                colorset[i%9]
             ],
             borderColor: [
                 //경계선 색상
-                colorset[i]
+                colorset[i%9]
             ],
             borderWidth: 1 //경계선 굵기
         });
@@ -60,7 +61,7 @@ function renderChart(xVal, yVals, maxXValCount, chartId){
     var context = document
         .getElementById(chartId)
         .getContext('2d');
-    dataChart = new Chart(context, {
+    chartDict[chartId] = new Chart(context, {
         type: 'line', // 차트의 형태
         data: { // 차트에 들어갈 데이터
             labels: xVal.map((x) => `${x.hour}시${x.minute}분`),

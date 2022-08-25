@@ -14,7 +14,10 @@
 
 <div class="row card m-1">
     <div class="card-body">
-        <h2>PDU 관리 대시보드</h2>
+        <h3>
+            <div class="d-none d-sm-inline">PDU 관리 대시보드</div>
+            <div class="small text-muted d-inline">{{rackNum}}번 랙의 {{pduNum}}번 PDU</div>
+        </h3>
     </div>
 </div>
 
@@ -54,7 +57,7 @@
         <div class="col">
             <div class="card m-1">
                 <div class="card-header">
-                    전력소비량
+                    전력소비량(Wh)
                     <i class="fa-solid fa-arrow-rotate-right" id="energy-chart-refresh"></i>
                 </div>
 
@@ -88,9 +91,25 @@
     const yVals = JSON.parse($("#y-values-data").text());
     const tableData = JSON.parse($("#table-data").text());
 
-    renderChart(xVal, yVals, 10, 'energy-data-chart');
+    const labels = []//pdu차트에서 데이터셋 마다의 라벨
+    for (let i in yVals) {
+        let label;
+        if (Number(i) === 0)
+            label = 'total';
+        else
+            label = `output${i}`;
+        labels.push(label);
+    }
 
-    const rowLabel = ['Total', 'output1', 'output2', 'output3', 'output4', 'output5', 'output6', 'output7', 'output8']
+    renderChart(xVal, yVals, 'energy-data-chart', 100, labels);
+
+    let rowLabel = []//테이블 행의 라벨
+    for (let i = 0; i < tableData.length; i++) {
+        if (i === 0)
+            rowLabel.push('Total');
+        else
+            rowLabel.push(`output${i}`);
+    }
     const colLabel = ['output', '전력(W)', '전력소비량(Wh)', '전류(mA)']
 
     renderTable(tableData, rowLabel, colLabel, 'data-table')
@@ -100,7 +119,7 @@
     $(document).ready(
         function () {// 페이지 로드 이후 처리될 동작들
             $('#energy-chart-refresh').on('click', () => {
-                refreshChart(URL_PDU_INDEX, 'energyCounter', 'energy-data-chart');
+                refreshChart(URL_PDU_INDEX, 'energyCounter', 'energy-data-chart', 100, labels);
             })
 
             $('#table-refresh').on('click', () => {

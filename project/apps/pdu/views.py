@@ -27,12 +27,12 @@ class PduView(View):
             requestType = request.GET.get('type', 0)
             if requestType == PduView.REQUEST_TYPE_CHART_RENDER:
                 fieldName = request.GET.get('fieldName', 0)
-                xVal, yVals = processPlotData(fieldName)
+                xVal, yVals = processPlotData(fieldName, pdu=pdu)
                 chartData = {'xVal': xVal, 'yVals': yVals, }
                 return JsonResponse(chartData, safe=False)
             elif requestType == PduView.REQUEST_TYPE_TABLE_RENDER:
                 tableData = list(map(
-                    lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, 9)))
+                    lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, pdu.outputCount+1, pdu=pdu)))
                 return JsonResponse(tableData, safe=False)
 
         modbusClient = ModbusClient(
@@ -63,7 +63,7 @@ class PduView(View):
                     101+int(switchIndex), int(switchState))
 
                 checks = modbusClient.read_holding_registers(
-                    101, pduUtil.MAX_OUTPUT_NUMBER)
+                    101, pdu.outputCount)
                 return JsonResponse(checks, safe=False)
 
         return self.renderPage(request, modbusClient, rackNum, pduNum, pdu)
@@ -74,12 +74,12 @@ class PduView(View):
         print("index page render")
 
         outputs = modbusClient.read_holding_registers(
-            101, pduUtil.MAX_OUTPUT_NUMBER)
+            101, pdu.outputCount)
         freq_volt = modbusClient.read_input_registers(0, 2)
 
         xVal, yVals = processPlotData(pduUtil.PDU_VARIABLE_ENERGY_COUNTER, pdu)
         tableData = list(map(
-            lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, pduUtil.MAX_OUTPUT_NUMBER+1, pdu=pdu)))
+            lambda x: [x.power, x.energyCounter, x.current], getLastNData(PduData, pdu.outputCount+1, pdu=pdu)))
 
         data = {'rackNum': rackNum,
                 'pduNum': pduNum,
@@ -100,7 +100,7 @@ def processPlotData(fieldName, pdu):
             lambda x: f'{{"year": {x[0].year}, "month": {x[0].month}, "month": {x[0].month}, "day": {x[0].day}, "hour": {x[0].hour}, "minute": {x[0].minute}}}', xVal))
     xVal = json.loads(f"[{','.join(xVal)}]")
     yVals = []
-    for i in range(pduUtil.MAX_OUTPUT_NUMBER+1):
+    for i in range(pdu.outputCount+1):
         yVal = querySet.filter(outputNum=i).values_list(fieldName)
         if yVal != None:
             yVal = list(map(lambda x: float(x[0]), yVal))
