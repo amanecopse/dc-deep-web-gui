@@ -1,4 +1,45 @@
 {% extends 'base.html' %}
 {% block content %}
-home
+{% load static %}
+<script src="{% static 'js/GaugeMeter.js' %}"></script>
+
+<div class="card m-1">
+    <div class="card-header">
+        데이터센터 현황
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col d-flex justify-content-center">
+                <div class="GaugeMeter gaugeMeter" id="temperatureMeter" data-percent="{{temperaturePercent}}"
+                    data-append="°C" data-size="300" data-theme="Green-Gold-Red" data-back="RGBa(0,0,0,.1)"
+                    data-animate_gauge_colors="1" data-animate_text_colors="1" data-width="15" data-label="평균 온도"
+                    data-style="Arch" data-label_color="#000" data-id="temperatureMeter" style="width: 200px;">
+                </div>
+            </div>
+            <div class="col d-flex justify-content-center">
+                <div class="GaugeMeter gaugeMeter" id="humidityMeter" data-percent="{{humidityPercent}}"
+                    data-append="rh" data-size="300" data-theme="Green-Gold-Red" data-back="RGBa(0,0,0,.1)"
+                    data-animate_gauge_colors="1" data-animate_text_colors="1" data-width="2" data-label="평균 습도"
+                    data-label_color="#000" data-id="humidityMeter" style="width: 200px;">
+                </div>
+            </div>
+            <div class="col d-flex justify-content-center">
+                <div class="GaugeMeter gaugeMeter" id="powerMeter" data-percent="{{powerPercent}}" data-used="{{power}}"
+                    data-total="{{powerTotal}}" data-append="W" data-size="300" data-theme="Green-Gold-Red"
+                    data-back="RGBa(0,0,0,.1)" data-animate_gauge_colors="1" data-animate_text_colors="1"
+                    data-width="15" data-label="총 전력" data-label_color="#000" data-stripe="2" data-showvalue="true"
+                    data-id="powerMeter" style="width: 200px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".GaugeMeter").gaugeMeter();
+    });
+</script>
+
+
 {% endblock %}
